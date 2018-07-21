@@ -5,69 +5,31 @@
     <small id="formHelpBlock" class="form-text text-muted">
         <p class="danger">* - this value is required</p>
     </small>
-    <form>
-        <div class="form-group-sm">
-            <label>Title* <input class="form-control" name="title" required/></label>            
-            <div class="form-control-feedback">
-                <p v-show="invalid">Title is required</p>
-                <p class="visually-hidden">
-                    Title must be at least 3 characters long
-                </p>
-            </div>
-        </div>
-        <div class="form-group-sm">
-            <label>Author* <input class="form-control" name="author"/></label>
-            <div class="form-control-feedback">
-                <p class="visually-hidden">Author is required</p>
-            </div>
-        </div>
-        <div class="form-group-sm">
-            <label>Pages* <input type="number" class="form-control" name="pages"/></label>
-            <div class="form-control-feedback">
-                <p class="visually-hidden">Pages number is required</p>
-                <p class="visually-hidden">
-                    Book can not contain nuber of pages less than 0
-                </p>
-                <p class="visually-hidden">
-                    Book can not contain nuber of pages more than 10000
-                </p>
-            </div>
-        </div>
-        <div class="form-group-sm">
-            <label>Publisher Name <input class="form-control" name="publisherName"/></label>
-            <div class="form-control-feedback">
-                <p class="visually-hidden">Publisher name can not be longer than 30 characters</p>
-            </div>
-        </div>
-        <div class="form-group-sm">
-            <label>Year of publication <input class="form-control" name="yearOfPublication"/></label>
-            <div class="form-control-feedback">
-                <p class="visually-hidden">Book can not be published before 1800</p>
-            </div>
-        </div>
-        <div class="form-group-sm"> 
-            <label>Here's gonna be datepicker <input class="form-control"/></label>  
-        </div>      
-        <div class="form-group-sm">
-            <label>ISBN <input class="form-control" name="isbn"/></label>
-            <div class="form-control-feedback">
-                <p class="visually-hidden">Valid ISBN should contain numbers and hyphens. Example: 2-266-11156-6</p>
-            </div>
-        </div>
-        <div class="form-group-sm">
-            <div class="custom-file">
-                <input type="file" class="custom-file-input" id="customFile" />
-                <label class="custom-file-label" for="customFile">Choose an image</label> 
-                <div class="form-group">
-                    <input class="form-control visually-hidden" name="image"/>
-                </div>
-            </div>
-        </div>
-        <div class="form-group-sm">
-            <button class="btn submit-btn" type="submit">
-            Добавить
-            </button>
-        </div>
+    <form @submit.prevent="addBook(form)">
+      <label>Title* 
+        <input class="form-control" name="title" v-model="form.title"/>
+      </label>
+      <label>Authors* 
+        <input class="form-control" name="authors" v-model="form.author"/>
+      </label>
+      <label>Pages* 
+        <input class="form-control" name="pages" v-model="form.pages"/>
+      </label>
+      <label>Publisher name 
+        <input class="form-control" name="publisherName" v-model="form.publisherName"/>
+      </label>
+      <label>Year of publication 
+        <input class="form-control" name="yearOfPublication" v-model="form.yearOfPublication"/>
+      </label>
+      <label>Release date
+        <input class="form-control" name="releaseDate" v-model="form.releaseDate"/>
+      </label>
+      <label>ISBN
+        <input class="form-control" name="isbn" v-model="form.isbn"/>
+      </label>
+      <button class="btn submit-btn" type="submit">
+      Добавить
+      </button>
     </form>
 </div>
   </div>
@@ -75,12 +37,28 @@
 
 <script>
 export default {
-  name: "BookForm",
   data() {
     return {
-      invalid: false,
-      msg: "Welcome to Your Vue.js App"
+      form: {
+        title: "",
+        author: "",
+        pages: "",
+        publisherName: "",
+        yearOfPublication: "",
+        releaseDate: "",
+        isbn: ""
+      }
     };
+  },
+  computed: {
+    books() {
+      return this.$store.state.bookList;
+    }
+  },
+  methods: {
+    addBook: function(data) {
+      this.$store.commit("addBook", data);
+    }
   }
 };
 </script>
