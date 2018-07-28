@@ -10,7 +10,7 @@
                 <button @click="removeBook(index)" type="button" class="close" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <img class="img-real" src="book.image" width="170" height="270" alt="Обложка книги">
+                <img class="img-real" :src="book.image" width="170" height="270" alt="Обложка книги">
             </li>
             <li class="book-element">
                 <p>«{{book.title}}»</p> 
@@ -25,19 +25,20 @@
 <script>
 export default {
   name: "BookList",
-  created: function() {
+
+  mounted: function() {
     this.$store.dispatch("fetchBooks");
   },
   // props: ["bookList"],
   computed: {
+    
     books() {
-      console.log(this.$store.state.bookList[0].title);
-      return this.$store.state.bookList;
+      return this.$store.getters.books;
     }
   },
   methods: {
     removeBook: function(index) {
-      this.$store.commit("removeBook", index);
+      this.$store.dispatch("removeBook", index);
     }
   }
 };

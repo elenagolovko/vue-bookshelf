@@ -1,56 +1,112 @@
 import Vue from "vue";
 import Vuex from "vuex";
-
+import createPersistedState from 'vuex-persistedstate';
 // import books from "./modules/books";
 
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   strict: true,
+  // plugins: [createPersistedState()],
   state: {
-    bookList: [
-      // {
-      //   title: "Трудно быть богом",
-      //   author: ["Аркадий Стругацкий", "Борис Стругацкий"],
-      //   pages: 157,
-      //   publisherName: "Издательство «Китеж»",
-      //   yearOfPublication: 1991,
-      //   releaseDate: 1964,
-      //   ISBN: "5-87110-001-5",
-      //   image: "./src/assets/upload-default-image2.jpg"
-      // },
-      // {
-      //   title: "Конец Вечности",
-      //   author: ["Айзек Азимов"],
-      //   pages: 233,
-      //   publisherName: "Издательство «Эксмо»",
-      //   yearOfPublication: 2008,
-      //   releaseDate: 1955,
-      //   ISBN: "978-5-699-29966-9",
-      //   image: "./src/assets/upload-default-image1.jpg"
-      // }
-    ]
-  },
-  getters: {},
-  mutations: {
-    removeBook: (state, index) => {
-      state.bookList.splice(index, 1);
+    // bookList: JSON.parse(localStorage.getItem('books') || '[]'),
+    bookList: [],
+    newBook: {
+      title: '',
+      authors: '',
+      pages: '',
+      publisherName: '',
+      yearOfPublication: '',
+      releaseDate: '',
+      isbn: '',
     },
-    addBook: (state, data) => {
-      state.bookList.push(data);
+  },
+
+  getters: {
+    books(state) {
+      return state.bookList
     }
+  },
+
+  mutations: {
+    fetch: (state, books) => {
+      if (books === undefined) {
+        return
+      }
+      books.forEach(function (book, index) {
+        book.id = index
+      });
+      localStorage.setItem('books',  JSON.stringify(books));
+      state.bookList = JSON.parse(localStorage.getItem('books') || '[]');
+    },
+
+    updateTitle (state, title) {
+      state.newBook.title = title;
+    },
+
+    updateAuthors (state, authors) {
+      state.newBook.authors = authors;
+    },
+
+    updatePages (state, pages) {
+      state.newBook.pages = pages;
+    },
+
+    updatePublisherName (state, publisherName) {
+      state.newBook.publisherName = publisherName;
+    },
+
+    updateYearOfPublication (state, yearOfPublication) {
+      state.newBook.yearOfPublication = yearOfPublication;
+    },
+
+    updateReleaseDate (state, releaseDate) {
+      state.newBook.releaseDate = releaseDate;
+    },
+
+    updateIsbn (state, isbn) {
+      state.newBook.isbn = isbn;
+    },
+
+    // save: (books) => {
+    //   localStorage.setItem('books', JSON.stringify(books));  
+    //   return true;    
+    // },
+
+    REMOVE_BOOK: (state, index) => {
+      state.bookList.splice(index, 1);
+      // localStorage.setItem('books', JSON.stringify(state.bookList));
+    },
+
+    ADD_BOOK: (state) => {
+      var book = Object.assign({}, state.newBook);
+      state.bookList.push(book);
+      console.log(state.bookList);
+      // localStorage.setItem('books', JSON.stringify(state.bookList));
+      // console.log(state.bookList);
+      for (var value in state.newBook) {
+        state.newBook[value] = '';
+      }
+    },
   },
   actions: {
     fetchBooks: context => {
       return fetch("./books.json")
         .then(response => response.json())
         .then(data => {
-          context.commit("addBook", data.bookList);
-          // localStorage.setItem('books', JSON.stringify(this.books));
+          context.commit("fetch", data.bookList);       
         })
         .catch(err => {
           throw err;
         });
+    },
+
+    addBook: context => {
+      context.commit('ADD_BOOK');
+    },
+
+    removeBook: (context, index) => {
+      context.commit('REMOVE_BOOK', index);
     }
   }
   // modules: {
