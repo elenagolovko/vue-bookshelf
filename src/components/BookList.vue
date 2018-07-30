@@ -14,7 +14,7 @@
             </li>
             <li class="book-element">
                 <p>«{{book.title}}»</p> 
-                <p>{{book.author}}</p> 
+                <p>{{book.authors}}</p> 
             </li>
         </ul>
     </div>
@@ -26,18 +26,17 @@
 export default {
   name: "BookList",
 
-  mounted: function() {
+  mounted () {
     this.$store.dispatch("fetchBooks");
   },
   // props: ["bookList"],
-  computed: {
-    
-    books() {
+  computed: {    
+    books () {
       return this.$store.getters.books;
     }
   },
   methods: {
-    removeBook: function(index) {
+    removeBook (index) {
       this.$store.dispatch("removeBook", index);
     }
   }

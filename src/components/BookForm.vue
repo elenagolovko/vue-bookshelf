@@ -7,28 +7,45 @@
     </small>
     <form @submit.prevent="addBook">
       <label>Title* 
-        <input class="form-control" name="title" :value="title" @input="updateTitle"/>
+        <input v-validate="'required|min:3|max:30'" class="form-control" name="title" :value="title" @input="updateTitle" :class="{error: errors.has('title')}"/>
       </label>
+      <span class="error-text" v-if="errors.has('title')">{{errors.first('title')}}</span>
+
       <label>Authors* 
-        <input class="form-control" name="authors" :value="authors" @input="updateAuthors"/>
+        <input v-validate="'required|min:4'" class="form-control" name="authors" :value="authors" @input="updateAuthors" :class="{error: errors.has('authors')}"/>
       </label>
+      <span class="error-text" v-if="errors.has('authors')">{{errors.first('authors')}}</span>
+
       <label>Pages* 
-        <input class="form-control" name="pages" :value="pages" @input="updatePages"/>
+        <input v-validate="'required|numeric|min:0|max:10000'" class="form-control" name="pages" :value="pages" @input="updatePages" :class="{error: errors.has('pages')}"/>
       </label>
+      <span class="error-text" v-if="errors.has('pages')">{{errors.first('pages')}}</span>
+
       <label>Publisher name 
-        <input class="form-control" name="publisherName" :value="publisherName" @input="updatePublisherName"/>
+        <input  v-validate="'max:30'" class="form-control" name="publisherName" :value="publisherName" @input="updatePublisherName" :class="{error: errors.has('publisherName')}"/>
       </label>
+      <span class="error-text" v-if="errors.has('publisherName')">{{errors.first('publisherName')}}</span>
+
       <label>Year of publication 
-        <input class="form-control" name="yearOfPublication" :value="yearOfPublication" @input="updateYearOfPublication"/>
+        <input v-validate="'numeric|min:1800'" class="form-control" name="yearOfPublication" :value="yearOfPublication" @input="updateYearOfPublication" :class="{error: errors.has('yearOfPublication')}"/>
       </label>
+      <span class="error-text" v-if="errors.has('yearOfPublication')">{{errors.first('yearOfPublication')}}</span>
+
       <label>Release date
-        <input class="form-control" name="releaseDate" :value="releaseDate" @input="updateReleaseDate"/>
+        <input v-validate="'numeric|min:1800'" class="form-control" name="releaseDate" :value="releaseDate" @input="updateReleaseDate" :class="{error: errors.has('releaseDate')}"/>
       </label>
+      <span class="error-text" v-if="errors.has('releaseDate')">{{errors.first('releaseDate')}}</span>
+
       <label>ISBN
-        <input class="form-control" name="isbn" :value="isbn" @input="updateIsbn"/>
+        <input v-validate="'regex:/\d+-\d+/g'" class="form-control" name="isbn" :value="isbn" @input="updateIsbn" :class="{error: errors.has('isbn')}"/>
       </label>
+      <span class="error-text" v-if="errors.has('isbn')">
+        Valid ISBN should contain numbers and hyphens. Example: 2-266-11156-6
+      </span>
+
+      <label>Image</label>
       <div class="custom-file">
-          <input type="file" class="custom-file-input" id="customFile"/>
+          <input type="file" class="custom-file-input" id="customFile" @change="onFileChange"/>
           <label class="custom-file-label" for="customFile">Choose an image</label> 
       </div>
       <button class="btn submit-btn" type="submit">
@@ -40,7 +57,11 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import Vue from 'vue';
+import { mapState } from 'vuex';
+import VeeValidate from 'vee-validate';
+
+Vue.use(VeeValidate);
 
 export default {
   computed: {
@@ -85,23 +106,26 @@ export default {
     },
 
     addBook () {
-      this.$store.dispatch("addBook");
+      this.$validator.validateAll().then((result) => {
+        if (result) {
+          this.$store.dispatch("addBook");
+        }
+      });
     }, 
 
-    // onFileChange: function (evt) {
-    //   evt.preventDefault();
+    onFileChange (evt) {
+      evt.preventDefault();
 
-    //   let image = evt.target.files[0];
-    //   let reader = new FileReader();
+      let image = evt.target.files[0];
+      let reader = new FileReader();
 
-    //   let setImage = () => {
-    //     if (!this.book.image) {
-    //       this.$set(this.book, 'image', reader.result);
-    //     }
-    //   };
-    //   reader.addEventListener('load', setImage);
-    //   reader.readAsDataURL(image);
-    // }
+      let setImage = () => {
+        this.$store.commit('setImage', reader.result)
+      };
+
+      reader.addEventListener('load', setImage);
+      reader.readAsDataURL(image);
+    }
   }
 };
 </script>
@@ -109,6 +133,10 @@ export default {
 <style scoped>
 input {
   float: right;
+}
+
+.error-text {
+  color: #9F3A38;
 }
 
 .form-group {

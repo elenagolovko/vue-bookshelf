@@ -7,9 +7,8 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   strict: true,
-  // plugins: [createPersistedState()],
+  plugins: [createPersistedState()],
   state: {
-    // bookList: JSON.parse(localStorage.getItem('books') || '[]'),
     bookList: [],
     newBook: {
       title: '',
@@ -19,11 +18,12 @@ export const store = new Vuex.Store({
       yearOfPublication: '',
       releaseDate: '',
       isbn: '',
+      image: ''
     },
   },
 
   getters: {
-    books(state) {
+    books (state) {
       return state.bookList
     }
   },
@@ -36,9 +36,16 @@ export const store = new Vuex.Store({
       books.forEach(function (book, index) {
         book.id = index
       });
-      localStorage.setItem('books',  JSON.stringify(books));
-      state.bookList = JSON.parse(localStorage.getItem('books') || '[]');
+      if (state.bookList.length === 0) {
+        state.bookList = books;
+      }
     },
+
+    // Попытка привести это к одной функции, которая бы убрала повторения кода.
+    // Однако данный вариант не работает, внешне в инпуте не меняется значение.
+    // updateValue (state, value) {
+    //   state.newBook['value'] = value;
+    // },
 
     updateTitle (state, title) {
       state.newBook.title = title;
@@ -68,22 +75,21 @@ export const store = new Vuex.Store({
       state.newBook.isbn = isbn;
     },
 
-    // save: (books) => {
-    //   localStorage.setItem('books', JSON.stringify(books));  
-    //   return true;    
-    // },
+    setImage (state, image) {
+      state.newBook.image = image;
+    },
 
     REMOVE_BOOK: (state, index) => {
       state.bookList.splice(index, 1);
-      // localStorage.setItem('books', JSON.stringify(state.bookList));
     },
 
     ADD_BOOK: (state) => {
+      if (state.newBook.image === '') {
+        state.newBook.image = './src/assets/not-available.jpg';
+      }
+
       var book = Object.assign({}, state.newBook);
       state.bookList.push(book);
-      console.log(state.bookList);
-      // localStorage.setItem('books', JSON.stringify(state.bookList));
-      // console.log(state.bookList);
       for (var value in state.newBook) {
         state.newBook[value] = '';
       }
@@ -109,8 +115,4 @@ export const store = new Vuex.Store({
       context.commit('REMOVE_BOOK', index);
     }
   }
-  // modules: {
-  //   books
-  //   // cart,
-  // }
 });
